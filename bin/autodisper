@@ -1,0 +1,17 @@
+#!/bin/bash
+
+olddisps=0
+while true; do
+  disps=$(disper -l | grep 'display ' | wc -l)
+  if [ "$olddisps" != "$disps" ]; then
+    if [ "$disps" = "2" ]; then
+      disper -e
+    else
+      disper -s
+    fi
+    olddisps="$disps"
+  fi
+  sleep 2
+done
+
+

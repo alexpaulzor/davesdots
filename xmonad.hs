@@ -10,21 +10,20 @@ import XMonad.Layout.NoBorders(smartBorders)
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.SetWMName
 
 import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.EZConfig(additionalKeysP)
-import XMonad.Util.Scratchpad
 
 import XMonad.Prompt
 import XMonad.Prompt.Shell(shellPrompt)
 import XMonad.Prompt.Window
+import XMonad.Hooks.ManageHelpers
 
 import System.IO(hPutStrLn)
 
--- Things that should always float
-myFloatHook = composeAll [
-	className =? "qemu" --> doFloat
-	]
+myManageHook = composeAll
+	[ className =? "exe" 		--> doFullFloat ]
 
 myLayoutHook = tiled ||| Mirror tiled ||| Grid ||| simpleTabbed
 	where
@@ -41,30 +40,37 @@ myLayoutHook = tiled ||| Mirror tiled ||| Grid ||| simpleTabbed
 		delta   = 3/100
 
 main = do
-	xmproc <- spawnPipe "~/bin/xmobar"
-	xmonad $ withUrgencyHook NoUrgencyHook defaultConfig
-			{ manageHook = manageDocks <+> myFloatHook <+> manageHook defaultConfig <+> scratchpadManageHook (W.RationalRect 0.25 0.25 0.5 0.5)
+	xmproc <- spawnPipe "xmobar"
+	xmonad $ defaultConfig
+			{ manageHook = manageDocks <+> myManageHook
 			, layoutHook = avoidStruts $ smartBorders $ myLayoutHook
+			, startupHook = setWMName "LG3D"
 			, logHook    = dynamicLogWithPP $ xmobarPP
 				{ ppOutput = hPutStrLn xmproc
 				, ppUrgent = xmobarColor "#CC0000" "" . wrap "**" "**"
 				, ppTitle  = xmobarColor "#8AE234" ""
 				}
+			, borderWidth = 2
+			, focusFollowsMouse = False
 			, terminal = "xterm"
 			}
 			`additionalKeysP`
 			[ ("M-p", shellPrompt defaultXPConfig { position = Top })
 			, ("M-S-a", windowPromptGoto defaultXPConfig { position = Top })
 			, ("M-a", windowPromptBring defaultXPConfig { position = Top })
-			, ("M-S-l", spawn "~/bin/lock")
+			, ("M-x", sendMessage ToggleStruts)
+			, ("M-<Left>", moveTo Prev HiddenNonEmptyWS)
 			, ("M-S-<Left>", shiftToPrev)
 			, ("M-S-<Right>", shiftToNext)
 			, ("M-<Up>", windows W.focusUp)
 			, ("M-S-<Up>", windows W.swapUp)
 			, ("M-<Down>", windows W.focusDown)
 			, ("M-S-<Down>", windows W.swapDown)
-			, ("M-`", toggleWS)
-			, ("M-s", moveTo Next EmptyWS)
-			, ("M-S-s", shiftTo Next EmptyWS)
-			, ("M-g", scratchpadSpawnAction defaultConfig { terminal = "xterm" })
+			, ("M-S-l", spawn "(pgrep xscreensaver || xscreensaver & sleep 1); xscreensaver-command -lock")
+			, ("M-S-s", spawn "sudo pm-suspend-hybrid")
+			, ("M-<Page_Up>", spawn "amixer sset Master 5%+")
+			, ("M-<Page_Down>", spawn "amixer sset Master 5%-")
+			, ("M-c", spawn "xdotool key 'ctrl+c'; xclip -o | xclip -i -selection clipboard")
+			, ("M-v", spawn "xclip -selection clipboard -o | xclip -i && xdotool key 'shift+Insert'")
+			, ("M-g", spawn "scrot -s")
 			]

@@ -3,29 +3,17 @@
 " Original author: Saleem Abdulrasool <compnerd@compnerd.org>
 " vim: set ts=3 sw=3 et nowrap:
 
-if has('multi_byte')      " Make sure we have unicode support
-   scriptencoding utf-8    " This file is in UTF-8
-
-   " ---- Terminal Setup ----
-   if ($ANSWERBACK !=# "PuTTY")
-      if (&termencoding == "" && (&term =~ "xterm" || &term =~ "putty")) || (&term =~ "rxvt-unicode") || (&term =~ "screen")
-         set termencoding=utf-8
-      endif
-   endif
-   set encoding=utf-8      " Default encoding should always be UTF-8
-endif
-
 " ---- General Setup ----
 set nocompatible           " Don't emulate vi's limitations
-set tabstop=4              " 4 spaces for tabs
-set shiftwidth=4           " 4 spaces for indents
+set tabstop=4              " 2 spaces for tabs
+set shiftwidth=4           " 2 spaces for indents
 set smarttab               " Tab next line based on current line
-"set expandtab             " Spaces for indentation
+set expandtab              " Spaces for indentation
 set autoindent             " Automatically indent next line
 if has('smartindent')
    set smartindent            " Indent next line based on current line
 endif
-"set linebreak             " Display long lines wrapped at word boundaries
+set nolinebreak             " Display long lines wrapped at character boundaries
 set incsearch              " Enable incremental searching
 set hlsearch               " Highlight search matches
 set ignorecase             " Ignore case when searching...
@@ -41,11 +29,12 @@ set scrolloff=3            " Show 3 lines of context during scrolls
 set sidescrolloff=2        " Show 2 columns of context during scrolls
 set backspace=2            " Normal backspace behavior
 "set textwidth=80           " Break lines at 80 characters
-set hidden                 " Allow flipping of buffers without saving
+"set hidden                 " Allow flipping of buffers without saving
 set noerrorbells           " Disable error bells
 set visualbell             " Turn visual bell on
 set t_vb=                  " Make the visual bell emit nothing
 set showcmd                " Show the current command
+set noswapfile
 
 set diffopt+=iwhite
 
@@ -64,7 +53,7 @@ endif
 if has('eval')
    fun! WideFold()
       if winwidth(0) > 90
-         setlocal foldcolumn=1
+         setlocal foldcolumn=0
       else
          setlocal foldcolumn=0
       endif
@@ -166,9 +155,11 @@ else
    endif
 endif
 
+set nolist
+
 if has('mouse')
    " Dont copy the listchars when copying
-   set mouse=nvi
+   set mouse=vi
 endif
 
 if has('autocmd')
@@ -214,35 +205,6 @@ if has('eval')
    nmap <C-]> :call GoDefinition()<CR>
 endif
 
-if has('autocmd')
-   " Shortcuts
-   if has('eval')
-      fun! <SID>cabbrev()
-         iab #i #include
-         iab #I #include
-
-         iab #d #define
-         iab #D #define
-
-         iab #e #endif
-         iab #E #endif
-      endfun
-
-      autocmd FileType c,cpp :call <SID>cabbrev()
-
-      autocmd BufNewFile,BufRead *.mm set filetype=noweb
-      autocmd BufNewFile,BufRead *.scala set filetype=scala
-      autocmd BufNewFile,BufRead *.proto set filetype=proto
-      autocmd BufNewFile,BufRead *.atomo set filetype=atomo
-      autocmd BufNewFile,BufRead *.atomo setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2 commentstring=--\ %s
-      autocmd! BufNewFile,BufRead *.ll set filetype=llvm
-      autocmd! BufRead,BufNewFile *.td set filetype=tablegen
-   endif
-
-   " make tab reindent in normal mode
-   autocmd FileType c,cpp,cs,java nmap <Tab> =0<CR>
-endif
-
 " Append modeline after last line in buffer.
 " Use substitute() (not printf()) to handle '%%s' modeline in LaTeX files.
 if has('eval')
@@ -286,31 +248,6 @@ endif
 
 " just continue
 nmap K K<cr>
-
-" stolen from auctex.vim
-if has('eval')
-   fun! EmacsKill()
-      if col(".") == strlen(getline(line(".")))+1
-         let @" = "\<CR>"
-         return "\<Del>"
-      else
-         return "\<C-O>D"
-      endif
-   endfun
-endif
-
-" some emacs-isms are OK
-map! <C-a> <Home>
-map  <C-a> <Home>
-map! <C-e> <End>
-map  <C-e> <End>
-imap <C-f> <Right>
-imap <C-b> <Left>
-map! <M-BS> <C-w>
-map  <C-k> d$
-if has('eval')
-   inoremap <buffer> <C-K> <C-R>=EmacsKill()<CR>
-endif
 
 " w!! for sudo w!
 "cmap w!! w !sudo tee % >/dev/null
@@ -371,23 +308,7 @@ if has('eval')
    let python_slow_sync = 1
 endif
 
-" ---- OmniCpp ----
-if v:version >= 700
-   if has('autocmd')
-      autocmd InsertLeave * if pumvisible() == 0|pclose|endif
-   endif
-
-   set completeopt=menu,menuone,longest
-
-   let OmniCpp_MayCompleteDot = 1 " autocomplete with .
-   let OmniCpp_MayCompleteArrow = 1 " autocomplete with ->
-   let OmniCpp_MayCompleteScope = 1 " autocomplete with ::
-   let OmniCpp_SelectFirstItem = 2 " select first item (but don't insert)
-   let OmniCpp_NamespaceSearch = 2 " search namespaces in this and included files
-   let OmniCpp_ShowPrototypeInAbbr = 1 " show function prototype (i.e. parameters) in popup window
-   map <C-F12> :!$HOME/bin/ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR><CR>
-   " add current directory's generated tags file to available tags
-   set tags+=./tags
-endif
-
 set t_RV=
+
+au BufNewFile,BufRead *.lib set syntax=php
+au BufNewFile,BufRead *.html set syntax=php

@@ -41,3 +41,6 @@
 	safecrlf = true
 [push]
 	default = matching
+[user]
+	name = Alex Paul
+	email = alex@alexpaul.net

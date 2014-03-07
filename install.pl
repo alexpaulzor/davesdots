@@ -37,59 +37,59 @@ unless(eval {symlink('', ''); 1;}) {
 }
 
 my %links = (
-	screenrc   => '.screenrc',
-	ackrc      => '.ackrc',
-	toprc      => '.toprc',
-	dir_colors => '.dir_colors',
-	lessfilter => '.lessfilter',
-
-	vim      => '.vim',
-	vimrc    => '.vimrc',
-	_vimrc   => '_vimrc',
-	gvimrc   => '.gvimrc',
-
-	commonsh => '.commonsh',
-
-	inputrc  => '.inputrc',
-
-	bash          => '.bash',
-	bashrc        => '.bashrc',
-	bash_profile  => '.bash_profile',
-
-	zsh      => '.zsh',
-	zshrc    => '.zshrc',
-
-	ksh      => '.ksh',
-	kshrc    => '.kshrc',
-	mkshrc   => '.mkshrc',
-
-	shinit  => '.shinit',
-
-	Xdefaults  => '.Xdefaults',
-	Xresources => '.Xresources',
-
-	'uncrustify.cfg' => '.uncrustify.cfg',
-	'indent.pro'     => '.indent.pro',
-
-	xmobarrc    => '.xmobarrc',
-	'xmonad.hs' => '.xmonad/xmonad.hs',
-
 	'Wombat.xccolortheme'  => 'Library/Application Support/Xcode/Color Themes/Wombat.xccolortheme',
-#	'Wombat.dvtcolortheme' => 'Library/Developer/Xcode/UserData/FontAndColorThemes/Wombat.dvtcolortheme',
-
-	gitconfig => '.gitconfig',
-	gitignore => '.gitignore',
-
-	tigrc     => '.tigrc',
-
-	caffeinate => 'bin/caffeinate',
-	lock       => 'bin/lock',
-
+	'Xdefaults' => '.Xdefaults',
+	'Xresources' => '.Xresources',
+	'_vimrc'   => '_vimrc',
+	'ackrc'      => '.ackrc',
+	'bash' => '.bash',
+	'bash_profile' => '.bash_profile',
+	'bashrc' => '.bashrc',
+	'bin/git-info' => 'bin/git-info',
+	'bin/inxi' => 'bin/inxi',
+	'bin/stats.rb' => 'bin/stats.rb',
+	'caffeinate' => 'bin/caffeinate',
+	'commonsh' => '.commonsh',
+	'dir_colors' => '.dir_colors',
+	'gdbinit' => '.gdbinit',
 	'git-info'            => 'bin/git-info',
 	'git-untrack-ignored' => 'bin/git-untracked-ignored',
-
-	gdbinit => '.gdbinit',
+	'gitconfig' => '.gitconfig',
+	'gitignore' => '.gitignore',
+	'gpg-agent.conf' => '.gnupg/gpg-agent.conf',
+	'gvimrc'   => '.gvimrc',
+	'indent.pro'     => '.indent.pro',
+	'inputrc' => '.inputrc',
+	'irbrc' => '.irbrc',
+	'ksh'      => '.ksh',
+	'kshrc'    => '.kshrc',
+	'lessfilter' => '.lessfilter',
+	'mkshrc' => '.mkshrc',
+	'screenrc' => '.screenrc',
+	'shinit' => '.shinit',
+	'sshconfig' => ".ssh/config",
+	'terminator.config' => '.config/terminator/config',
+	'tigrc'     => '.tigrc',
+	'toprc'      => '.toprc',
+	'uncrustify.cfg' => '.uncrustify.cfg',
+	'vim' => '.vim',
+	'vimrc' => '.vimrc',
+	'xbindkeysrc' => '.xbindkeysrc',
+	'xinitrc' => '.xinitrc',
+	'xmobarrc' => '.xmobarrc',
+	'xmodmaprc' => '.xmodmaprc',
+	'xmonad.hs' => '.xmonad/xmonad.hs',
+	'xmonad.hs' => '.xmonad/xmonad.hs',
+	'xscreensaver' => '.xscreensaver',
+	'zsh' => '.zsh',
+	'zshrc' => '.zshrc'
 );
+
+my $hostname = `hostname`;
+chomp($hostname);
+if ( -d "$scriptdir/machines/$hostname" ) {
+	$links{"machines/$hostname"} = ".$hostname";
+}
 
 my $contained = (substr $scriptdir, 0, length($home)) eq $home;
 my $prefix = undef;
@@ -97,15 +97,6 @@ if ($contained) {
 	$prefix = substr $scriptdir, length($home);
 	($prefix) = $prefix =~ m{^\/? (.+) [^/]+ $}x;
 }
-
-chomp(my $uname = `uname -s`);
-`cc answerback.c -o answerback.$uname`;
-if ($? != 0) {
-	warn "Could not compile answerback.\n";
-} else {
-	$links{"answerback.$uname"} = "bin/answerback.$uname";
-}
-
 
 my $i = 0; # Keep track of how many links we added
 for my $file (keys %links) {
@@ -145,3 +136,5 @@ for my $file (keys %links) {
 print "$i link";
 print 's' if $i != 1;
 print " created\n";
+
+
